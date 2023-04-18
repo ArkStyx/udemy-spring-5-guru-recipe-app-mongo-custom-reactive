@@ -19,9 +19,10 @@ dependencies {
 	testAnnotationProcessor("org.projectlombok:lombok:1.18.20")
 	
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
+	implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-validation:2.7.6")
+	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.webjars:bootstrap:3.3.7-1")
 	implementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo")
 
@@ -30,6 +31,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation(group = "cz.jirutka.spring", name = "embedmongo-spring", version = "1.3.1")
 	testImplementation("org.hamcrest:hamcrest:2.2")
+	testImplementation("io.projectreactor:reactor-test")
 }
 
 tasks.withType<Test> {
