@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,9 @@ import guru.springframework.recipe.app.domain.enums.Difficulty;
 import guru.springframework.recipe.app.repositories.CategoryRepository;
 import guru.springframework.recipe.app.repositories.RecipeRepository;
 import guru.springframework.recipe.app.repositories.UnitOfMeasureRepository;
+import guru.springframework.recipe.app.repositories.reactive.CategoryReactiveRepository;
+import guru.springframework.recipe.app.repositories.reactive.RecipeReactiveRepository;
+import guru.springframework.recipe.app.repositories.reactive.UnitOfMeasureReactiveRepository;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -32,8 +36,17 @@ public class DefaultRecipeBootStrapData implements ApplicationListener<ContextRe
     private final RecipeRepository recipeRepository;
     private final UnitOfMeasureRepository unitOfMeasureRepository;
 
-    public DefaultRecipeBootStrapData(CategoryRepository categoryRepository,
-                           RecipeRepository recipeRepository, UnitOfMeasureRepository unitOfMeasureRepository) {
+    @Autowired
+    CategoryReactiveRepository categoryReactiveRepository;
+    
+    @Autowired
+    RecipeReactiveRepository recipeReactiveRepository;
+    
+    @Autowired
+    UnitOfMeasureReactiveRepository unitOfMeasureReactiveRepository;
+
+    
+    public DefaultRecipeBootStrapData(CategoryRepository categoryRepository, RecipeRepository recipeRepository, UnitOfMeasureRepository unitOfMeasureRepository) {
         this.categoryRepository = categoryRepository;
         this.recipeRepository = recipeRepository;
         this.unitOfMeasureRepository = unitOfMeasureRepository;
@@ -46,6 +59,10 @@ public class DefaultRecipeBootStrapData implements ApplicationListener<ContextRe
         loadUom();
         recipeRepository.saveAll(getRecipes());
         log.debug("Loading Bootstrap Data");
+        
+        log.debug("Count categoryReactiveRepository : " + categoryReactiveRepository.count().block().toString());
+        log.debug("Count recipeReactiveRepository : " + recipeReactiveRepository.count().block().toString());
+        log.debug("Count unitOfMeasureReactiveRepository : " + unitOfMeasureReactiveRepository.count().block().toString());
     }
 
     private void loadCategories(){
