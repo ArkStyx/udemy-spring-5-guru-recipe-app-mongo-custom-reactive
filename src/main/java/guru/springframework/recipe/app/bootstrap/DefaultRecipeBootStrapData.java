@@ -60,9 +60,9 @@ public class DefaultRecipeBootStrapData implements ApplicationListener<ContextRe
         recipeRepository.saveAll(getRecipes());
         log.debug("Loading Bootstrap Data");
         
-        log.debug("Count categoryReactiveRepository : " + categoryReactiveRepository.count().block().toString());
-        log.debug("Count recipeReactiveRepository : " + recipeReactiveRepository.count().block().toString());
-        log.debug("Count unitOfMeasureReactiveRepository : " + unitOfMeasureReactiveRepository.count().block().toString());
+        log.debug("Count categoryReactiveRepository : " + categoryReactiveRepository.count().block());
+        log.debug("Count recipeReactiveRepository : " + recipeReactiveRepository.count().block());
+        log.debug("Count unitOfMeasureReactiveRepository : " + unitOfMeasureReactiveRepository.count().block());
     }
 
     private void loadCategories(){

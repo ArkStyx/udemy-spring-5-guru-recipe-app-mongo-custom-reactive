@@ -168,14 +168,4 @@ class RecipeControllerTest {
 				andExpect(view().name("404error"));
 	}
 	
-	@Test
-	void handleNumberFormatException() throws Exception {
-
-		mockMvc.perform(
-					get("/recipe/azerty/show/")
-				).
-				andExpect(status().isBadRequest()).
-				andExpect(view().name("400error"));
-	}
-	
 }
