@@ -9,9 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -28,6 +25,7 @@ import guru.springframework.recipe.app.commands.UnitOfMeasureCommand;
 import guru.springframework.recipe.app.services.IngredientService;
 import guru.springframework.recipe.app.services.RecipeService;
 import guru.springframework.recipe.app.services.UnitOfMeasureService;
+import reactor.core.publisher.Flux;
 
 public class IngredientControllerTest {
 
@@ -107,7 +105,7 @@ public class IngredientControllerTest {
 		ingredientCommand.setId(idIngredient);
 		
         when(ingredientService.recupererParIdRecetteEtIdIngredient(anyString(), anyString())).thenReturn(ingredientCommand);
-        when(unitOfMeasureService.recupererToutesLesUnitesDeMesure()).thenReturn(new LinkedHashSet<>());
+        when(unitOfMeasureService.recupererToutesLesUnitesDeMesure()).thenReturn(Flux.just(new UnitOfMeasureCommand()));
         
 		/* When */
 
@@ -157,10 +155,8 @@ public class IngredientControllerTest {
         RecipeCommand recipeCommand = new RecipeCommand();
         recipeCommand.setId(idRecette);
         
-        Set<UnitOfMeasureCommand> linkedHashSetUnitOfMeasureCommand = new LinkedHashSet<>();
-		
         when(recipeService.findCommandById(anyString())).thenReturn(recipeCommand);
-        when(unitOfMeasureService.recupererToutesLesUnitesDeMesure()).thenReturn(linkedHashSetUnitOfMeasureCommand);
+        when(unitOfMeasureService.recupererToutesLesUnitesDeMesure()).thenReturn(Flux.just(new UnitOfMeasureCommand()));
         
 		/* When */
 		

@@ -1,6 +1,6 @@
 package guru.springframework.recipe.app.controllers;
 
-import java.util.Set;
+import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -60,7 +60,7 @@ public class IngredientController {
 		return "redirect:/recipe/" + idRecette + "/ingredient/" + idIngredient + "/show";
 	}
 	
-	// XXX correspondance nom methode JAVA GURU - John Thompson : newIngredient()
+	// XXX correspondance nom methode JAVA GURU - John Thompson : newIngredient() / newRecipe()
     @GetMapping("recipe/{recipeId}/ingredient/new")
     public String creerNouvelIngredient(Model model, @PathVariable("recipeId") String idRecette) {
     	
@@ -71,7 +71,7 @@ public class IngredientController {
     	RecipeCommand recetteTrouvee = recipeService.findCommandById(idRecette);
     	recetteTrouvee.getIngredients().add(ingredientCommand);
     	
-    	Set<UnitOfMeasureCommand> linkedHashSetUnitOfMeasureCommand = unitOfMeasureService.recupererToutesLesUnitesDeMesure();
+    	List<UnitOfMeasureCommand> linkedHashSetUnitOfMeasureCommand = unitOfMeasureService.recupererToutesLesUnitesDeMesure().collectList().block();
 
         model.addAttribute("ingredient", ingredientCommand);
         model.addAttribute("listeUnitesDeMesure", linkedHashSetUnitOfMeasureCommand);

@@ -1,11 +1,10 @@
 package guru.springframework.recipe.app.services;
 
-import java.util.Set;
-
 import guru.springframework.recipe.app.commands.UnitOfMeasureCommand;
+import reactor.core.publisher.Flux;
 
 public interface UnitOfMeasureService {
 
-	Set<UnitOfMeasureCommand> recupererToutesLesUnitesDeMesure();
+	Flux<UnitOfMeasureCommand> recupererToutesLesUnitesDeMesure();
 	
 }
