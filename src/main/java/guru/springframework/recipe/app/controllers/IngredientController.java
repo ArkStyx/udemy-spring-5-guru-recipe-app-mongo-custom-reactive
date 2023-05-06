@@ -17,6 +17,7 @@ import guru.springframework.recipe.app.services.RecipeService;
 import guru.springframework.recipe.app.services.UnitOfMeasureService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @AllArgsConstructor
@@ -53,7 +54,10 @@ public class IngredientController {
 	// XXX correspondance nom methode JAVA GURU - John Thompson : saveOrUpdate()
 	@PostMapping("recipe/{recipeId}/ingredient")
 	public String sauvegarderOuModifierIngredientDansRecette(@ModelAttribute IngredientCommand ingredientCommand) {
-		IngredientCommand ingredientSauvegarde = ingredientService.sauvegarderIngredient(ingredientCommand);
+		
+		Mono<IngredientCommand> monoIngredientSauvegarde = ingredientService.sauvegarderIngredient(ingredientCommand);
+		IngredientCommand ingredientSauvegarde = monoIngredientSauvegarde.block();
+		
 		String idRecette = ingredientSauvegarde.getRecipeId();
 		String idIngredient = ingredientSauvegarde.getId();
 		

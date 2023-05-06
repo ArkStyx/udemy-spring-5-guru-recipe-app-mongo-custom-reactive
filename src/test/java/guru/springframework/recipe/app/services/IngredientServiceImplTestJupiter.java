@@ -8,8 +8,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -22,18 +20,19 @@ import guru.springframework.recipe.app.converters.fromdomain.IngredientToIngredi
 import guru.springframework.recipe.app.converters.fromdomain.UnitOfMeasureToUnitOfMeasureCommand;
 import guru.springframework.recipe.app.domain.Ingredient;
 import guru.springframework.recipe.app.domain.Recipe;
-import guru.springframework.recipe.app.repositories.RecipeRepository;
-import guru.springframework.recipe.app.repositories.UnitOfMeasureRepository;
+import guru.springframework.recipe.app.repositories.reactive.RecipeReactiveRepository;
+import guru.springframework.recipe.app.repositories.reactive.UnitOfMeasureReactiveRepository;
+import reactor.core.publisher.Mono;
 
 public class IngredientServiceImplTestJupiter {
 
 	IngredientService ingredientService;
 	
 	@Mock
-	RecipeRepository recipeRepository;
+	RecipeReactiveRepository recipeReactiveRepository;
 	
 	@Mock
-	UnitOfMeasureRepository unitOfMeasureRepository;
+	UnitOfMeasureReactiveRepository unitOfMeasureReactiveRepository;
 	
 	IngredientToIngredientCommand ingredientToIngredientCommand;
 	
@@ -44,7 +43,8 @@ public class IngredientServiceImplTestJupiter {
 		this.ingredientToIngredientCommand = new IngredientToIngredientCommand(new UnitOfMeasureToUnitOfMeasureCommand());
 		this.ingredientCommandToIngredient = new IngredientCommandToIngredient(new UnitOfMeasureCommandToUnitOfMeasure());
 		MockitoAnnotations.openMocks(this);
-		ingredientService = new IngredientServiceImpl(recipeRepository, unitOfMeasureRepository, ingredientToIngredientCommand, ingredientCommandToIngredient);
+		ingredientService = new IngredientServiceImpl(recipeReactiveRepository, unitOfMeasureReactiveRepository, 
+													ingredientToIngredientCommand, ingredientCommandToIngredient);
 	}
 
 	@Test
@@ -73,16 +73,16 @@ public class IngredientServiceImplTestJupiter {
         recette.addIngredient(ingredient02);
         recette.addIngredient(ingredient03);
 
-		Optional<Recipe> optionalRecipe = Optional.of(recette);
-		when(recipeRepository.findById(anyString())).thenReturn(optionalRecipe);
+		Mono<Recipe> monoRecipe = Mono.just(recette);
+		when(recipeReactiveRepository.findById(anyString())).thenReturn(monoRecipe);
 		
 		/* When */
-		IngredientCommand ingredientCommand = ingredientService.recupererParIdRecetteEtIdIngredient(idRecette, idIngredient);
+		Mono<IngredientCommand> monoIngredientCommand = ingredientService.recupererParIdRecetteEtIdIngredient(idRecette, idIngredient);
 		
 		/* Then */
-		assertNotNull(ingredientCommand);
-		assertEquals(idIngredient, ingredientCommand.getId());
-        verify(recipeRepository, times(1)).findById(anyString());
+		assertNotNull(monoIngredientCommand);
+		assertEquals(idIngredient, monoIngredientCommand.block().getId());
+        verify(recipeReactiveRepository, times(1)).findById(anyString());
 	}
 	
 	// XXX correspondance nom methode JAVA GURU - John Thompson : testSaveRecipeCommand()
@@ -102,19 +102,20 @@ public class IngredientServiceImplTestJupiter {
         savedRecipe.addIngredient(new Ingredient());
         savedRecipe.getIngredients().iterator().next().setId(idIngredient);
 
-        when(recipeRepository.save(any())).thenReturn(savedRecipe);
+        Mono<Recipe> monoSavedRecipe = Mono.just(savedRecipe);
+        when(recipeReactiveRepository.save(any())).thenReturn(monoSavedRecipe);
     	
-        Optional<Recipe> recipeOptional = Optional.of(new Recipe());
-        when(recipeRepository.findById(anyString())).thenReturn(recipeOptional);
+        Mono<Recipe> monoNewRecipe = Mono.just(new Recipe());
+        when(recipeReactiveRepository.findById(anyString())).thenReturn(monoNewRecipe);
 
 		/* When */
-        IngredientCommand ingredientCommandSauvegardee = ingredientService.sauvegarderIngredient(ingredientCommand);
+        Mono<IngredientCommand> monoIngredientCommand = ingredientService.sauvegarderIngredient(ingredientCommand);
 
 		/* Then */
-        assertNotNull(ingredientCommandSauvegardee);
-        assertEquals(idIngredient, ingredientCommandSauvegardee.getId());
-        verify(recipeRepository, times(1)).findById(anyString());
-        verify(recipeRepository, times(1)).save(any(Recipe.class));
+        assertNotNull(monoIngredientCommand);
+        assertEquals(idIngredient, monoIngredientCommand.block().getId());
+        verify(recipeReactiveRepository, times(1)).findById(anyString());
+        verify(recipeReactiveRepository, times(1)).save(any(Recipe.class));
     }
     
 	// XXX correspondance nom methode JAVA GURU - John Thompson : testDeleteById()
@@ -124,23 +125,22 @@ public class IngredientServiceImplTestJupiter {
 		String idRecette = "1";
 		String idIngredient = "3";
 		
-		Recipe recette = new Recipe();
-		recette.setId(idRecette);
-		
 		Ingredient ingredient = new Ingredient();
 		ingredient.setId(idIngredient);
 		
+		Recipe recette = new Recipe();
+		recette.setId(idRecette);
 		recette.addIngredient(ingredient);
-		Optional<Recipe> optionalRecipe = Optional.of(recette);
 		
-		when(recipeRepository.findById(anyString())).thenReturn(optionalRecipe);
+		Mono<Recipe> monoRecipe = Mono.just(recette);
+		when(recipeReactiveRepository.findById(anyString())).thenReturn(monoRecipe);
 		
 		/* When */
 		ingredientService.supprimerIngredientDansRecetteParId(idRecette, idIngredient);
 
 		/* Then */
-		verify(recipeRepository, times(1)).findById(anyString());
-		verify(recipeRepository, times(1)).save(any(Recipe.class));
+		verify(recipeReactiveRepository, times(1)).findById(anyString());
+		verify(recipeReactiveRepository, times(1)).save(any(Recipe.class));
     }
     
 }

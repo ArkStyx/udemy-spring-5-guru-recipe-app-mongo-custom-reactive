@@ -26,6 +26,7 @@ import guru.springframework.recipe.app.services.IngredientService;
 import guru.springframework.recipe.app.services.RecipeService;
 import guru.springframework.recipe.app.services.UnitOfMeasureService;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class IngredientControllerTest {
 
@@ -51,7 +52,7 @@ public class IngredientControllerTest {
 	
 	// TODO correspondance nom methode JAVA GURU - John Thompson : testListIngredients()
 	@Test
-	void testRecupererListeIngredients() throws Exception {
+	void recupererListeIngredients() throws Exception {
 
 		/* Given */
 		String idRecette = "1";
@@ -76,13 +77,14 @@ public class IngredientControllerTest {
 	
 	// TODO correspondance nom methode JAVA GURU - John Thompson : testShowIngredient()
 	@Test
-	void testAfficherIngredientDansRecette() throws Exception {
+	void afficherIngredientDansRecette() throws Exception {
 		/* Given */
 		String idIngredient = "1";
 		IngredientCommand ingredientCommand = new IngredientCommand();
 		ingredientCommand.setId(idIngredient);
 		
-		when(ingredientService.recupererParIdRecetteEtIdIngredient(anyString(), anyString())).thenReturn(ingredientCommand);
+		Mono<IngredientCommand> monoIngredientCommand = Mono.just(ingredientCommand);
+		when(ingredientService.recupererParIdRecetteEtIdIngredient(anyString(), anyString())).thenReturn(monoIngredientCommand);
 		
 		/* When */
 		
@@ -97,14 +99,15 @@ public class IngredientControllerTest {
 	
 	// TODO correspondance nom methode JAVA GURU - John Thompson : testUpdateIngredientForm()
 	@Test
-	void testModifierIngredientDansRecette() throws Exception {
+	void modifierIngredientDansRecette() throws Exception {
 		
 		/* Given */
 		String idIngredient = "1";
 		IngredientCommand ingredientCommand = new IngredientCommand();
 		ingredientCommand.setId(idIngredient);
 		
-        when(ingredientService.recupererParIdRecetteEtIdIngredient(anyString(), anyString())).thenReturn(ingredientCommand);
+		Mono<IngredientCommand> monoIngredientCommand = Mono.just(ingredientCommand);
+        when(ingredientService.recupererParIdRecetteEtIdIngredient(anyString(), anyString())).thenReturn(monoIngredientCommand);
         when(unitOfMeasureService.recupererToutesLesUnitesDeMesure()).thenReturn(Flux.just(new UnitOfMeasureCommand()));
         
 		/* When */
@@ -121,7 +124,7 @@ public class IngredientControllerTest {
 	
 	// TODO correspondance nom methode JAVA GURU - John Thompson : testSaveOrUpdate()
 	@Test
-	void testSauvegarderOuModifierIngredientDansRecette() throws Exception {
+	void sauvegarderOuModifierIngredientDansRecette() throws Exception {
 
 		String id = "3";
 		String idRecette = "2";
@@ -131,7 +134,8 @@ public class IngredientControllerTest {
 		ingredientCommand.setId(id);
 		ingredientCommand.setRecipeId(idRecette);
 		
-		when(ingredientService.sauvegarderIngredient(any())).thenReturn(ingredientCommand);
+		Mono<IngredientCommand> monoIngredientCommand = Mono.just(ingredientCommand);
+		when(ingredientService.sauvegarderIngredient(any())).thenReturn(monoIngredientCommand);
 		
 		/* When */
 		
@@ -148,7 +152,7 @@ public class IngredientControllerTest {
 	
 	// TODO correspondance nom methode JAVA GURU - John Thompson : testNewIngredientForm()
 	@Test
-	void testCreerNouvelIngredient() throws Exception {
+	void creerNouvelIngredient() throws Exception {
 		
 		/* Given */
 		String idRecette = "1";
@@ -173,7 +177,7 @@ public class IngredientControllerTest {
 
 	// TODO correspondance nom methode JAVA GURU - John Thompson : testDeleteIngredient()
 	@Test
-	void testSupprimerIngredient() throws Exception {
+	void supprimerIngredient() throws Exception {
 		/* Given */
 		
 		
