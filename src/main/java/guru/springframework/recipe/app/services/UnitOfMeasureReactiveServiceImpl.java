@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 
 @AllArgsConstructor
 @Service
-public class UnitOfMeasureServiceImpl implements UnitOfMeasureService {
+public class UnitOfMeasureReactiveServiceImpl implements UnitOfMeasureReactiveService {
 
 	private final UnitOfMeasureReactiveRepository unitOfMeasureReactiveRepository;
 	

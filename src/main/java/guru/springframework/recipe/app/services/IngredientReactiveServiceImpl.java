@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @AllArgsConstructor
 @Service
-public class IngredientServiceImpl implements IngredientService {
+public class IngredientReactiveServiceImpl implements IngredientReactiveService {
 	
 	private final RecipeReactiveRepository recipeReactiveRepository;
 	
@@ -33,10 +33,13 @@ public class IngredientServiceImpl implements IngredientService {
 	// XXX correspondance nom methode JAVA GURU - John Thompson : findByRecipeIdAndIngredientId()
 	@Override
 	public Mono<IngredientCommand> recupererParIdRecetteEtIdIngredient(String idRecette, String idIngredient) {
+		log.info("recupererParIdRecetteEtIdIngredient - idRecette : " + idRecette);
+		log.info("recupererParIdRecetteEtIdIngredient - idIngredient : " + idIngredient);
 		
 		Mono<Recipe> monoRecipe = recipeReactiveRepository.findById(idRecette);
 		
-		Optional<IngredientCommand> optionalIngredientCommand =  monoRecipe.block().getIngredients()
+		Recipe recipe = monoRecipe.block();
+		Optional<IngredientCommand> optionalIngredientCommand = recipe.getIngredients()
 																		.stream()
 																		.filter(ingredient -> ingredient.getId().equals(idIngredient))
 																		.map(ingredient -> ingredientToIngredientCommand.convert(ingredient))
@@ -50,40 +53,53 @@ public class IngredientServiceImpl implements IngredientService {
 	@Override
 	public Mono<IngredientCommand> sauvegarderIngredient(IngredientCommand ingredientCommand) {
 
+		// TODO FIXME KO !!!!!
+		// TODO FIXME KO !!!!!
+		// TODO FIXME KO !!!!!
+		// TODO FIXME KO !!!!!
+		// TODO FIXME KO !!!!!
 		String idRecette = ingredientCommand.getRecipeId();
-		Mono<Recipe> monoRecipe = recipeReactiveRepository.findById(idRecette);
+		log.info("sauvegarderIngredient - idRecette : " + idRecette);
 		
+		Mono<Recipe> monoRecipe = recipeReactiveRepository.findById(idRecette);
 		Recipe recetteTrouvee = monoRecipe.block();
 		if (recetteTrouvee == null) {
+			log.error("sauvegarderIngredient - creation d'un nouvel ingredient");
 			return Mono.just(new IngredientCommand());
 		}
 		else {
+			log.info("sauvegarderIngredient - recuperation d'un ingredient");
 			Optional<Ingredient> optionalIngredient = recetteTrouvee.getIngredients()
 																	.stream()
 																	.filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
 																	.findFirst();
 			
 			if (optionalIngredient.isPresent()) {
+				
+				/* ON VERIFIE QUE L'UNITE DE MESURE EXISTE BIEN */
+				Mono<UnitOfMeasure> monoUnitOfMeasure = unitOfMeasureReactiveRepository.findById(ingredientCommand.getUnitOfMeasure().getId());
+				UnitOfMeasure uniteDeMesure = monoUnitOfMeasure.block();
+				
 				Ingredient ingredientTrouve = optionalIngredient.get();
 				ingredientTrouve.setDescription(ingredientCommand.getDescription());
 				ingredientTrouve.setAmount(ingredientCommand.getAmount());
-
-				/* ON VERIFIE QUE L'UNITE DE MESURE EXISTE BIEN */
-				Mono<UnitOfMeasure> monoUnitOfMeasure = unitOfMeasureReactiveRepository.findById(ingredientCommand.getUnitOfMeasure().getId());
-				ingredientTrouve.setUnitOfMeasure(monoUnitOfMeasure.block());
+				ingredientTrouve.setUnitOfMeasure(uniteDeMesure);
+				
+                if (ingredientTrouve.getUnitOfMeasure() == null){
+                    new RuntimeException("Unite de mesure non trouvee");
+                }
 			}
 			else {
 				recetteTrouvee.addIngredient(ingredientCommandToIngredient.convert(ingredientCommand));
 			}
 			
 			Mono<Recipe> monoRecipeSauvegardee = recipeReactiveRepository.save(recetteTrouvee);
-			
 			Recipe recetteSauvegardee = monoRecipeSauvegardee.block();
 			
 			Optional<Ingredient> optionalIngredientSauvegarde = recetteSauvegardee.getIngredients()
-																		.stream()
-																		.filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
-																		.findFirst();
+																	.stream()
+																	.filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
+																	.findFirst();
 			
             //check by description
             if (!optionalIngredientSauvegarde.isPresent()) {
@@ -96,33 +112,44 @@ public class IngredientServiceImpl implements IngredientService {
             }
             
             IngredientCommand ingredientCommandSauvegardee = ingredientToIngredientCommand.convert(optionalIngredientSauvegarde.get());
+            ingredientCommandSauvegardee.setRecipeId(recetteSauvegardee.getId());
+            
 			return Mono.just(ingredientCommandSauvegardee);
 		}
 	}
 
-	
 	// XXX correspondance nom methode JAVA GURU - John Thompson : deleteById()
 	@Override
 	public Mono<Void> supprimerIngredientDansRecetteParId(String idRecette, String idIngredient) {
 
 		Mono<Recipe> monoRecipe = recipeReactiveRepository.findById(idRecette);
-		if (monoRecipe == null) {
+		
+		Recipe recette = monoRecipe.block();
+		if (recette == null) {
 			log.error("La recette recherchee n'existe pas - idRecette : " + idRecette);
 		}
 		else {
-			Recipe recette = monoRecipe.block();
-			
+			log.debug("La recette recherchee existe - idRecette : " + idRecette);
+
 			Predicate<Ingredient> filtreIdIngredient = ingredient -> ingredient.getId().equals(idIngredient);
 			Optional<Ingredient> optionalIngredient = recette.getIngredients().stream()
 																			.filter(filtreIdIngredient)
 																			.findFirst();
 			
 			if (optionalIngredient.isPresent()) {
+				log.debug("L'ingredient recherche existe - idIngredient : " + idIngredient);
+				
                 Ingredient ingredientPourSuppression = optionalIngredient.get(); 
                 recette.getIngredients().remove(ingredientPourSuppression);
-                recipeReactiveRepository.save(recette);
+                
+                Mono<Recipe> monoRecetteSauvegardee = recipeReactiveRepository.save(recette);
+                monoRecetteSauvegardee.block();
+			}
+			else {
+				log.error("L'ingredient recherche n'existe pas - idIngredient : " + idIngredient);
 			}
 		}
+		
 		return Mono.empty();
 	}
 

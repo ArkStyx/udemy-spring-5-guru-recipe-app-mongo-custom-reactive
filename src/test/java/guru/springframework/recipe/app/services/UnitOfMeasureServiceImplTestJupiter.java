@@ -23,7 +23,7 @@ import reactor.core.publisher.Flux;
 
 public class UnitOfMeasureServiceImplTestJupiter {
 
-	UnitOfMeasureServiceImpl unitOfMeasureServiceImpl;
+	UnitOfMeasureReactiveServiceImpl unitOfMeasureServiceImpl;
 	
 	@Mock
 	UnitOfMeasureReactiveRepository unitOfMeasureReactiveRepository;
@@ -33,7 +33,7 @@ public class UnitOfMeasureServiceImplTestJupiter {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		unitOfMeasureServiceImpl = new UnitOfMeasureServiceImpl(unitOfMeasureReactiveRepository, unitOfMeasureToUnitOfMeasureCommand);
+		unitOfMeasureServiceImpl = new UnitOfMeasureReactiveServiceImpl(unitOfMeasureReactiveRepository, unitOfMeasureToUnitOfMeasureCommand);
 	}
 	
 	@Test

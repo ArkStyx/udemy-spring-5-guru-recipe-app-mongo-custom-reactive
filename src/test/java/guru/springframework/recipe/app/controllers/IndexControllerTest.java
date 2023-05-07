@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,14 +26,15 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.ui.Model;
 
 import guru.springframework.recipe.app.domain.Recipe;
-import guru.springframework.recipe.app.services.RecipeService;
+import guru.springframework.recipe.app.services.RecipeReactiveService;
+import reactor.core.publisher.Flux;
 
 class IndexControllerTest {
 
 	IndexController indexController;
 	
 	@Mock
-	RecipeService recipeService;
+	RecipeReactiveService recipeReactiveService;
 	
 	@Mock
 	Model model;
@@ -43,16 +45,16 @@ class IndexControllerTest {
 	 * https://stackoverflow.com/questions/5606541/how-to-capture-a-list-of-specific-type-with-mockito
 	 */
 	@Captor
-	private ArgumentCaptor<Set<Recipe>> argumentCaptorSetRecipe;
+	private ArgumentCaptor<List<Recipe>> argumentCaptorListRecipe;
 	
 	@BeforeEach
 	void setUp() throws Exception {
 		MockitoAnnotations.openMocks(this);
-		indexController = new IndexController(recipeService);	
+		indexController = new IndexController(recipeReactiveService);	
 	}
 
 	@Test
-	void testGetIndexPage() {
+	void getIndexPage() {
 		
 		/* Given */
 		Recipe recetteGuacamole = new Recipe();
@@ -65,35 +67,30 @@ class IndexControllerTest {
 		fausseListeDeRecettes.add(recetteGuacamole);
 		fausseListeDeRecettes.add(recetteTacos);
 		
-		when(recipeService.getRecipes()).thenReturn(fausseListeDeRecettes);
+		when(recipeReactiveService.getRecipes()).thenReturn(Flux.fromIterable(fausseListeDeRecettes));
 		
-
 		/* When */
 		String retourModel = indexController.getIndexPage(model);
-		
 		
 		/* Then */
 		assertEquals("index", retourModel);
 		
-		/*
-		 * TODO ON NE PEUT FAIRE DES verify QUE SUR DES MOCKS !!!!
-		 */
-//		verify(indexController, Mockito.times(1)).getIndexPage(model);
+		verify(recipeReactiveService, Mockito.times(1)).getRecipes();
+		verify(model, Mockito.times(1)).addAttribute(eq("toutesLesRecettes"), argumentCaptorListRecipe.capture());
 		
-		verify(recipeService, Mockito.times(1)).getRecipes();
-		verify(model, Mockito.times(1)).addAttribute(eq("toutesLesRecettes"), argumentCaptorSetRecipe.capture());
-		
-		Set<Recipe> retourArgumentCaptorSetRecipe = argumentCaptorSetRecipe.getValue();
+		List<Recipe> retourArgumentCaptorSetRecipe = argumentCaptorListRecipe.getValue();
 		assertEquals(2, retourArgumentCaptorSetRecipe.size());
 	}
 	
 	@Test
-	void testMockMVC() throws Exception {
+	void mockMVC() throws Exception {
 
 		String rootContext = "/";
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.get(rootContext);
 		ResultMatcher resultMatcherStatusOk = status().isOk();
 		ResultMatcher resultMatcherViewNameIndex = view().name("index");
+		
+		when(recipeReactiveService.getRecipes()).thenReturn(Flux.empty());
 		
 		MockMvc mockMVC = MockMvcBuilders.standaloneSetup(indexController).build();
 		mockMVC.perform(requestBuilder).andExpect(resultMatcherStatusOk).andExpect(resultMatcherViewNameIndex);

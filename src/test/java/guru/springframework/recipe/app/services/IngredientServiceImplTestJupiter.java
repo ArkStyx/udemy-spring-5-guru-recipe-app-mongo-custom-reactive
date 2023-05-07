@@ -26,7 +26,7 @@ import reactor.core.publisher.Mono;
 
 public class IngredientServiceImplTestJupiter {
 
-	IngredientService ingredientService;
+	IngredientReactiveService ingredientService;
 	
 	@Mock
 	RecipeReactiveRepository recipeReactiveRepository;
@@ -43,12 +43,12 @@ public class IngredientServiceImplTestJupiter {
 		this.ingredientToIngredientCommand = new IngredientToIngredientCommand(new UnitOfMeasureToUnitOfMeasureCommand());
 		this.ingredientCommandToIngredient = new IngredientCommandToIngredient(new UnitOfMeasureCommandToUnitOfMeasure());
 		MockitoAnnotations.openMocks(this);
-		ingredientService = new IngredientServiceImpl(recipeReactiveRepository, unitOfMeasureReactiveRepository, 
+		ingredientService = new IngredientReactiveServiceImpl(recipeReactiveRepository, unitOfMeasureReactiveRepository, 
 													ingredientToIngredientCommand, ingredientCommandToIngredient);
 	}
 
 	@Test
-	void testRecupererParIdRecetteEtIdIngredient() {
+	void recupererParIdRecetteEtIdIngredient() {
 
 		/* Given */
 		String idRecette = "1";
@@ -87,7 +87,7 @@ public class IngredientServiceImplTestJupiter {
 	
 	// XXX correspondance nom methode JAVA GURU - John Thompson : testSaveRecipeCommand()
     @Test
-    public void testSauvegarderIngredient() throws Exception {
+    public void sauvegarderIngredient() throws Exception {
     	
 		/* Given */
     	String idIngredient = "3";
@@ -120,7 +120,7 @@ public class IngredientServiceImplTestJupiter {
     
 	// XXX correspondance nom methode JAVA GURU - John Thompson : testDeleteById()
 	@Test
-    public void testSupprimerIngredientDansRecetteParId() throws Exception {
+    public void supprimerIngredientDansRecetteParId() throws Exception {
     	
 		String idRecette = "1";
 		String idIngredient = "3";

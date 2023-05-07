@@ -22,22 +22,22 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import guru.springframework.recipe.app.commands.IngredientCommand;
 import guru.springframework.recipe.app.commands.RecipeCommand;
 import guru.springframework.recipe.app.commands.UnitOfMeasureCommand;
-import guru.springframework.recipe.app.services.IngredientService;
-import guru.springframework.recipe.app.services.RecipeService;
-import guru.springframework.recipe.app.services.UnitOfMeasureService;
+import guru.springframework.recipe.app.services.IngredientReactiveService;
+import guru.springframework.recipe.app.services.RecipeReactiveService;
+import guru.springframework.recipe.app.services.UnitOfMeasureReactiveService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class IngredientControllerTest {
 
 	@Mock
-	IngredientService ingredientService;
+	IngredientReactiveService ingredientService;
 	
 	@Mock
-	UnitOfMeasureService unitOfMeasureService;
+	UnitOfMeasureReactiveService unitOfMeasureService;
 	
 	@Mock
-	RecipeService recipeService;
+	RecipeReactiveService recipeReactiveService;
 	
 	@InjectMocks
 	IngredientController ingredientController;
@@ -59,7 +59,7 @@ public class IngredientControllerTest {
 		RecipeCommand recipeCommand = new RecipeCommand();
 		recipeCommand.setId(idRecette);
 		
-		when(recipeService.findCommandById(anyString())).thenReturn(recipeCommand);
+		when(recipeReactiveService.findCommandById(anyString())).thenReturn(Mono.just(recipeCommand));
 		
 		/* When */
 		
@@ -71,7 +71,7 @@ public class IngredientControllerTest {
 				andExpect(view().name("recipe/ingredient/list")).
 				andExpect(model().attributeExists("recipe"));
 		
-		verify(recipeService, times(1)).findCommandById(anyString());
+		verify(recipeReactiveService, times(1)).findCommandById(anyString());
 
 	}
 	
@@ -159,7 +159,7 @@ public class IngredientControllerTest {
         RecipeCommand recipeCommand = new RecipeCommand();
         recipeCommand.setId(idRecette);
         
-        when(recipeService.findCommandById(anyString())).thenReturn(recipeCommand);
+        when(recipeReactiveService.findCommandById(anyString())).thenReturn(Mono.just(recipeCommand));
         when(unitOfMeasureService.recupererToutesLesUnitesDeMesure()).thenReturn(Flux.just(new UnitOfMeasureCommand()));
         
 		/* When */
@@ -182,7 +182,7 @@ public class IngredientControllerTest {
 		
 		
 		/* When */
-		
+		when(ingredientService.supprimerIngredientDansRecetteParId(anyString(), anyString())).thenReturn(Mono.empty());
 		
 		/* Then */
 		mockMvc.perform(

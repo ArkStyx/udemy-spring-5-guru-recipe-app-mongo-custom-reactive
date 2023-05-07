@@ -13,6 +13,7 @@ import guru.springframework.recipe.app.converters.fromcommand.RecipeCommandToRec
 import guru.springframework.recipe.app.converters.fromdomain.RecipeToRecipeCommand;
 import guru.springframework.recipe.app.domain.Recipe;
 import guru.springframework.recipe.app.repositories.RecipeRepository;
+import reactor.core.publisher.Mono;
 
 @Disabled
 @SpringBootTest
@@ -21,7 +22,7 @@ public class RecipeServiceIT {
     private static final String NEW_DESCRIPTION = "NEW DESCRIPTION";
     
     @Autowired
-    RecipeService recipeService;
+    RecipeReactiveService recipeReactiveService;
     
     @Autowired
     RecipeRepository recipeRepository;
@@ -42,7 +43,8 @@ public class RecipeServiceIT {
     	
     	/* When */
     	testRecipeCommand.setDescription(NEW_DESCRIPTION);
-    	RecipeCommand savedRecipeCommand = recipeService.saveRecipeCommand(testRecipeCommand);
+    	Mono<RecipeCommand> monoRecipeCommand = recipeReactiveService.saveRecipeCommand(testRecipeCommand);
+    	RecipeCommand savedRecipeCommand = monoRecipeCommand.block();
     	
     	/* Then */
     	assertEquals(NEW_DESCRIPTION, savedRecipeCommand.getDescription());

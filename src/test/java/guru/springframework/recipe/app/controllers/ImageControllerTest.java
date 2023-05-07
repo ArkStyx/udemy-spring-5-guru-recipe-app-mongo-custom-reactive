@@ -23,16 +23,17 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import guru.springframework.recipe.app.commands.RecipeCommand;
-import guru.springframework.recipe.app.services.ImageService;
-import guru.springframework.recipe.app.services.RecipeService;
+import guru.springframework.recipe.app.services.ImageReactiveService;
+import guru.springframework.recipe.app.services.RecipeReactiveService;
+import reactor.core.publisher.Mono;
 
 public class ImageControllerTest {
 
 	@Mock
-	ImageService imageService;
+	ImageReactiveService imageReactiveService;
 	
 	@Mock
-	RecipeService recipeService;
+	RecipeReactiveService recipeReactiveService;
 	
 	@InjectMocks
 	ImageController imageController;
@@ -55,7 +56,7 @@ public class ImageControllerTest {
 		RecipeCommand recipeCommand = new RecipeCommand();
 		recipeCommand.setId(idRecette);
 		
-		when(recipeService.findCommandById(anyString())).thenReturn(recipeCommand);
+		when(recipeReactiveService.findCommandById(anyString())).thenReturn(Mono.just(recipeCommand));
 		
 		/* When */
 		
@@ -67,7 +68,7 @@ public class ImageControllerTest {
 				andExpect(view().name("recipe/imageuploadform")).
 				andExpect(model().attributeExists("recipe"));
 		
-		verify(recipeService, times(1)).findCommandById(anyString());
+		verify(recipeReactiveService, times(1)).findCommandById(anyString());
 	}
 	
 	@Test
@@ -81,6 +82,7 @@ public class ImageControllerTest {
 		MockMultipartFile mockMultipartFile = new MockMultipartFile(name, originalFileName, contentType, content);
 		
 		/* When */
+        when(imageReactiveService.saveImageFile(anyString(), any())).thenReturn(Mono.empty());
 		
 		/* Then */
 		mockMvc.perform(
@@ -89,7 +91,7 @@ public class ImageControllerTest {
 				andExpect(status().is3xxRedirection()).
 				andExpect(header().string("Location", "/recipe/1/show"));
 		
-		verify(imageService, times(1)).saveImageFile(anyString(), any());
+		verify(imageReactiveService, times(1)).saveImageFile(anyString(), any());
 	}
 	
 	@Test
@@ -110,7 +112,7 @@ public class ImageControllerTest {
 		recipeCommand.setId(idRecette);
 		recipeCommand.setImage(imageFromDB);
 		
-		when(recipeService.findCommandById(anyString())).thenReturn(recipeCommand);
+		when(recipeReactiveService.findCommandById(anyString())).thenReturn(Mono.just(recipeCommand));
 		
 		/* When */
 		

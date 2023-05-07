@@ -20,9 +20,9 @@ import org.springframework.mock.web.MockMultipartFile;
 import guru.springframework.recipe.app.domain.Recipe;
 import guru.springframework.recipe.app.repositories.RecipeRepository;
 
-public class ImageServiceImplTest {
+public class ImageReactiveServiceImplTest {
 
-	ImageServiceImpl imageServiceImpl;
+	ImageReactiveServiceImpl imageServiceImpl;
 	
 	@Mock
 	RecipeRepository recipeRepository;
@@ -30,7 +30,7 @@ public class ImageServiceImplTest {
 	@BeforeEach
 	public void setUp() {
 		MockitoAnnotations.openMocks(this);
-		imageServiceImpl = new ImageServiceImpl(recipeRepository);
+		imageServiceImpl = new ImageReactiveServiceImpl(recipeRepository);
 	}
 	
 	@Test

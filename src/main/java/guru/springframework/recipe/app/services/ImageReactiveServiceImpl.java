@@ -10,16 +10,17 @@ import guru.springframework.recipe.app.domain.Recipe;
 import guru.springframework.recipe.app.repositories.RecipeRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @AllArgsConstructor
 @Service
-public class ImageServiceImpl implements ImageService {
+public class ImageReactiveServiceImpl implements ImageReactiveService {
 
 	private final RecipeRepository recipeRepository;
 	
 	@Override
-	public void saveImageFile(String recipeId, MultipartFile file) {
+	public Mono<Void> saveImageFile(String recipeId, MultipartFile file) {
 		log.info("Reception d'un fichier : " + file.getName());
 
 		Optional<Recipe> optionalRecipe = recipeRepository.findById(recipeId);
@@ -44,6 +45,7 @@ public class ImageServiceImpl implements ImageService {
 		else {
 			log.error("La recette n'existe pas - id recette : " + recipeId);
 		}
+		return Mono.empty();
 	}
 
 }

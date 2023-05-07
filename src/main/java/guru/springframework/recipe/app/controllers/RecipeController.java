@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import guru.springframework.recipe.app.commands.RecipeCommand;
-import guru.springframework.recipe.app.services.RecipeService;
+import guru.springframework.recipe.app.domain.Recipe;
+import guru.springframework.recipe.app.services.RecipeReactiveService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 public class RecipeController {
 
-	private final RecipeService recipeService;
+	private final RecipeReactiveService recipeReactiveService;
 	
 	private static final String NOM_REPERTOIRE_THYMELEAF = "recipe";
 	private static final String SEPARATEUR_REPERTOIRE_ET_TEMPLATE_THYMELEAF = "/";
@@ -34,7 +35,8 @@ public class RecipeController {
 	
     @GetMapping(value = "/recipe/{idRecupereDansUrl}/show")
 	public String showById(Model model, @PathVariable("idRecupereDansUrl") String id) {
-		model.addAttribute(NOM_ATTRIBUT_DANS_TEMPLATE_THYMELEAF, recipeService.findById(id));
+    	Recipe recipeTrouvee = recipeReactiveService.findById(id).block();
+		model.addAttribute(NOM_ATTRIBUT_DANS_TEMPLATE_THYMELEAF, recipeTrouvee);
 		return NOM_REPERTOIRE_THYMELEAF + SEPARATEUR_REPERTOIRE_ET_TEMPLATE_THYMELEAF + "show";
 	}
 	
@@ -46,7 +48,8 @@ public class RecipeController {
 	
     @GetMapping(value ="/recipe/{idRecupereDansUrl}/update")
 	public String updateRecipe(Model model, @PathVariable("idRecupereDansUrl") String id) {
-		model.addAttribute(NOM_ATTRIBUT_DANS_TEMPLATE_THYMELEAF, recipeService.findCommandById(id));
+    	RecipeCommand recipeMiseAJour = recipeReactiveService.findCommandById(id).block();
+		model.addAttribute(NOM_ATTRIBUT_DANS_TEMPLATE_THYMELEAF, recipeMiseAJour);
 		return RECIPE_RECIPEFORM_URL;
 	}
 	
@@ -61,15 +64,15 @@ public class RecipeController {
             return RECIPE_RECIPEFORM_URL;
 		}
 		
-		RecipeCommand recetteSauvegardee = recipeService.saveRecipeCommand(command);
+		RecipeCommand recetteSauvegardee = recipeReactiveService.saveRecipeCommand(command).block();
 		return REDIRECTION + "recipe/" + recetteSauvegardee.getId() + "/show";
 	}
 
     @GetMapping("recipe/{idPourSuppression}/delete")
 	public String deleteById(@PathVariable("idPourSuppression") String id) {
 		log.info("Id de la recette supprimée : " + id);
-		recipeService.deleteById(id);
+		recipeReactiveService.deleteById(id);
 		return REDIRECTION;
 	}
-    
+
 }

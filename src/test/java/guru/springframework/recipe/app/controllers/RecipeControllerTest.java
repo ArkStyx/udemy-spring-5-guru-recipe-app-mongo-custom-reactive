@@ -26,12 +26,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import guru.springframework.recipe.app.commands.RecipeCommand;
 import guru.springframework.recipe.app.domain.Recipe;
 import guru.springframework.recipe.app.exceptions.NotFoundException;
-import guru.springframework.recipe.app.services.RecipeService;
+import guru.springframework.recipe.app.services.RecipeReactiveService;
+import reactor.core.publisher.Mono;
 
 class RecipeControllerTest {
 
 	@Mock
-	RecipeService recipeService;
+	RecipeReactiveService recipeReactiveService;
 	
 	@InjectMocks
 	RecipeController recipeController;
@@ -54,7 +55,7 @@ class RecipeControllerTest {
 		Recipe recette = new Recipe();
 		recette.setId(idRecette);
 		
-		when(recipeService.findById(anyString())).thenReturn(recette);
+		when(recipeReactiveService.findById(anyString())).thenReturn(Mono.just(recette));
 
 		String rootContext = "/recipe/" + idRecette + "/show/";
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.get(rootContext);
@@ -94,7 +95,7 @@ class RecipeControllerTest {
 		recipeCommand.setId(idRecette);
 
 		/* When */
-		when(recipeService.saveRecipeCommand(any())).thenReturn(recipeCommand);
+		when(recipeReactiveService.saveRecipeCommand(any())).thenReturn(Mono.just(recipeCommand));
 		
 		/* Then */
 		mockMvc.perform(
@@ -111,10 +112,10 @@ class RecipeControllerTest {
     @Test
     public void postNewRecipeFormValidationFail() throws Exception {
 		String idRecette = "2";
-        RecipeCommand command = new RecipeCommand();
-        command.setId(idRecette);
+        RecipeCommand recipeCommand = new RecipeCommand();
+        recipeCommand.setId(idRecette);
 
-        when(recipeService.saveRecipeCommand(any())).thenReturn(command);
+        when(recipeReactiveService.saveRecipeCommand(any())).thenReturn(Mono.just(recipeCommand));
 
         mockMvc.perform(post("/recipe")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -135,7 +136,7 @@ class RecipeControllerTest {
 		recipeCommand.setId(idRecette);
 		
 		/* When */
-		when(recipeService.findCommandById(anyString())).thenReturn(recipeCommand);
+		when(recipeReactiveService.findCommandById(anyString())).thenReturn(Mono.just(recipeCommand));
 		
 		/* Then */
 		mockMvc.perform(
@@ -154,12 +155,12 @@ class RecipeControllerTest {
 				andExpect(status().is3xxRedirection()).
 				andExpect(view().name("redirect:/"));
 		
-		verify(recipeService, times(1)).deleteById(anyString());
+		verify(recipeReactiveService, times(1)).deleteById(anyString());
 	}
 	
 	@Test
 	void handleNotFound() throws Exception {
-		when(recipeService.findById(anyString())).thenThrow(NotFoundException.class);
+		when(recipeReactiveService.findById(anyString())).thenThrow(NotFoundException.class);
 		
 		mockMvc.perform(
 					get("/recipe/1/show/")
