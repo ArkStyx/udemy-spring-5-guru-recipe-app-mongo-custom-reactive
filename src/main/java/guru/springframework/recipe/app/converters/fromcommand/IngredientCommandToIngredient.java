@@ -30,6 +30,12 @@ public class IngredientCommandToIngredient implements Converter<IngredientComman
 		destination.setAmount(source.getAmount());
 		destination.setUnitOfMeasure(unitOfMeasureCommandToUnitOfMeasure.convert(source.getUnitOfMeasure()));
 
+        if (source.getRecipeId() != null) {
+            Recipe recipe = new Recipe();
+            recipe.setId(source.getRecipeId());
+            recipe.addIngredient(destination);
+        }
+		
 		return destination;
 	}
 

@@ -40,10 +40,14 @@ public class IngredientReactiveServiceImpl implements IngredientReactiveService 
 		
 		Recipe recipe = monoRecipe.block();
 		Optional<IngredientCommand> optionalIngredientCommand = recipe.getIngredients()
-																		.stream()
-																		.filter(ingredient -> ingredient.getId().equals(idIngredient))
-																		.map(ingredient -> ingredientToIngredientCommand.convert(ingredient))
-																		.findFirst();
+																.stream()
+																.filter(ingredient -> ingredient.getId().equals(idIngredient))
+																.map(ingredient -> {
+																	IngredientCommand command = ingredientToIngredientCommand.convert(ingredient);
+																	command.setRecipeId(idRecette);
+																	return command;
+																})
+																.findFirst();
 
 		return Mono.just(optionalIngredientCommand.get());
 	}

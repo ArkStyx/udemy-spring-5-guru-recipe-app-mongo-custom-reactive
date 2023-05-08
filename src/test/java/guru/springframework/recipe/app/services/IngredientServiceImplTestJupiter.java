@@ -110,10 +110,11 @@ public class IngredientServiceImplTestJupiter {
 
 		/* When */
         Mono<IngredientCommand> monoIngredientCommand = ingredientService.sauvegarderIngredient(ingredientCommand);
-
+        IngredientCommand ingredientCommandSauvegarde = monoIngredientCommand.block();
+        
 		/* Then */
-        assertNotNull(monoIngredientCommand);
-        assertEquals(idIngredient, monoIngredientCommand.block().getId());
+        assertNotNull(ingredientCommandSauvegarde);
+        assertEquals(idIngredient, ingredientCommandSauvegarde.getId());
         verify(recipeReactiveRepository, times(1)).findById(anyString());
         verify(recipeReactiveRepository, times(1)).save(any(Recipe.class));
     }

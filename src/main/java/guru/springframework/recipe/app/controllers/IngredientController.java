@@ -74,6 +74,13 @@ public class IngredientController {
 	// XXX correspondance nom methode JAVA GURU - John Thompson : saveOrUpdate()
 	@PostMapping("recipe/{recipeId}/ingredient")
 	public String sauvegarderOuModifierIngredientDansRecette(@ModelAttribute IngredientCommand ingredientCommand) {
+		
+		
+		// TODO FIXME KO !!!!!
+		// TODO FIXME KO !!!!!
+		// TODO FIXME KO !!!!!
+		// TODO FIXME KO !!!!!
+		// TODO FIXME KO !!!!!
 		log.info("sauvegarderOuModifierIngredientDansRecette - ingredientCommand.getRecipeId() : " + ingredientCommand.getRecipeId());
 		
 		Mono<IngredientCommand> monoIngredientSauvegarde = ingredientReactiveService.sauvegarderIngredient(ingredientCommand);
