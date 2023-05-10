@@ -1,13 +1,12 @@
 package guru.springframework.recipe.app.services;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import guru.springframework.recipe.app.domain.Recipe;
-import guru.springframework.recipe.app.repositories.RecipeRepository;
+import guru.springframework.recipe.app.repositories.reactive.RecipeReactiveRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -17,15 +16,13 @@ import reactor.core.publisher.Mono;
 @Service
 public class ImageReactiveServiceImpl implements ImageReactiveService {
 
-	private final RecipeRepository recipeRepository;
+	private final RecipeReactiveRepository recipeReactiveRepository;
 	
 	@Override
 	public Mono<Void> saveImageFile(String recipeId, MultipartFile file) {
 		log.info("Reception d'un fichier : " + file.getName());
 
-		Optional<Recipe> optionalRecipe = recipeRepository.findById(recipeId);
-		if (optionalRecipe.isPresent()) {
-			
+		Mono<Recipe> monoRecipe = recipeReactiveRepository.findById(recipeId).map(recipe -> {
 			try {
 				byte[] byteFile = file.getBytes();
 				Byte[] byteObjects = new Byte[byteFile.length];
@@ -33,19 +30,20 @@ public class ImageReactiveServiceImpl implements ImageReactiveService {
 				for (byte b : byteFile) {
 					byteObjects[i++] = b;
 				}
-				
-				Recipe recipe = optionalRecipe.get();
-				recipe.setImage(byteObjects);
-				recipeRepository.save(recipe);
-				
-			} catch (IOException e) {
-				log.error("Erreur lors de la lecture du fichier");
-			}
-		}
-		else {
-			log.error("La recette n'existe pas - id recette : " + recipeId);
-		}
-		return Mono.empty();
-	}
 
+				recipe.setImage(byteObjects);
+				return recipe;
+			}
+			catch (IOException e) {
+				log.error("Erreur lors de la lecture du fichier");
+				throw new RuntimeException(e);
+			}
+		});
+		
+		Recipe recipe = monoRecipe.block();
+		recipeReactiveRepository.save(recipe).block();
+
+        return Mono.empty();
+	}
+	
 }

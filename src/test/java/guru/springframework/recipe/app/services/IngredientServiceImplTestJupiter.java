@@ -135,7 +135,8 @@ public class IngredientServiceImplTestJupiter {
 		
 		Mono<Recipe> monoRecipe = Mono.just(recette);
 		when(recipeReactiveRepository.findById(anyString())).thenReturn(monoRecipe);
-		
+        when(recipeReactiveRepository.save(any())).thenReturn(monoRecipe);
+
 		/* When */
 		ingredientService.supprimerIngredientDansRecetteParId(idRecette, idIngredient);
 

@@ -36,20 +36,35 @@ public class IngredientReactiveServiceImpl implements IngredientReactiveService 
 		log.info("recupererParIdRecetteEtIdIngredient - idRecette : " + idRecette);
 		log.info("recupererParIdRecetteEtIdIngredient - idIngredient : " + idIngredient);
 		
-		Mono<Recipe> monoRecipe = recipeReactiveRepository.findById(idRecette);
 		
-		Recipe recipe = monoRecipe.block();
-		Optional<IngredientCommand> optionalIngredientCommand = recipe.getIngredients()
-																.stream()
-																.filter(ingredient -> ingredient.getId().equals(idIngredient))
-																.map(ingredient -> {
-																	IngredientCommand command = ingredientToIngredientCommand.convert(ingredient);
-																	command.setRecipeId(idRecette);
-																	return command;
-																})
-																.findFirst();
-
-		return Mono.just(optionalIngredientCommand.get());
+		// TODO CODE PERSO
+//		Mono<Recipe> monoRecipe = recipeReactiveRepository.findById(idRecette);
+//		
+//		Recipe recipe = monoRecipe.block();
+//		Optional<IngredientCommand> optionalIngredientCommand = recipe.getIngredients()
+//																.stream()
+//																.filter(ingredient -> ingredient.getId().equals(idIngredient))
+//																.map(ingredient -> {
+//																	IngredientCommand command = ingredientToIngredientCommand.convert(ingredient);
+//																	command.setRecipeId(idRecette);
+//																	return command;
+//																})
+//																.findFirst();
+//
+//		return Mono.just(optionalIngredientCommand.get());
+		
+		
+		// TODO CODE JOHN THOMPSON
+        return recipeReactiveRepository
+                .findById(idRecette)
+                .flatMapIterable(Recipe::getIngredients)
+                .filter(ingredient -> ingredient.getId().equalsIgnoreCase(idIngredient))
+                .single()
+                .map(ingredient -> {
+                    IngredientCommand command = ingredientToIngredientCommand.convert(ingredient);
+                    command.setRecipeId(idRecette);
+                    return command;
+                });
 	}
 	
 	// XXX correspondance nom methode JAVA GURU - John Thompson : saveIngredientCommand()
@@ -57,11 +72,6 @@ public class IngredientReactiveServiceImpl implements IngredientReactiveService 
 	@Override
 	public Mono<IngredientCommand> sauvegarderIngredient(IngredientCommand ingredientCommand) {
 
-		// TODO FIXME KO !!!!!
-		// TODO FIXME KO !!!!!
-		// TODO FIXME KO !!!!!
-		// TODO FIXME KO !!!!!
-		// TODO FIXME KO !!!!!
 		String idRecette = ingredientCommand.getRecipeId();
 		log.info("sauvegarderIngredient - idRecette : " + idRecette);
 		
@@ -94,12 +104,13 @@ public class IngredientReactiveServiceImpl implements IngredientReactiveService 
                 }
 			}
 			else {
-				recetteTrouvee.addIngredient(ingredientCommandToIngredient.convert(ingredientCommand));
+                Ingredient ingredient = ingredientCommandToIngredient.convert(ingredientCommand);
+                recetteTrouvee.addIngredient(ingredient);
 			}
 			
 			Mono<Recipe> monoRecipeSauvegardee = recipeReactiveRepository.save(recetteTrouvee);
 			Recipe recetteSauvegardee = monoRecipeSauvegardee.block();
-			
+
 			Optional<Ingredient> optionalIngredientSauvegarde = recetteSauvegardee.getIngredients()
 																	.stream()
 																	.filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))

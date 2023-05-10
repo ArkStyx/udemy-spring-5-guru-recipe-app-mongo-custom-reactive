@@ -12,7 +12,8 @@ import guru.springframework.recipe.app.commands.RecipeCommand;
 import guru.springframework.recipe.app.converters.fromcommand.RecipeCommandToRecipe;
 import guru.springframework.recipe.app.converters.fromdomain.RecipeToRecipeCommand;
 import guru.springframework.recipe.app.domain.Recipe;
-import guru.springframework.recipe.app.repositories.RecipeRepository;
+import guru.springframework.recipe.app.repositories.reactive.RecipeReactiveRepository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Disabled
@@ -25,7 +26,7 @@ public class RecipeServiceIT {
     RecipeReactiveService recipeReactiveService;
     
     @Autowired
-    RecipeRepository recipeRepository;
+    RecipeReactiveRepository recipeReactiveRepository;
     
     @Autowired
     RecipeToRecipeCommand recipeToRecipeCommand;
@@ -35,12 +36,14 @@ public class RecipeServiceIT {
     
     @Transactional
     @Test
-    public void testSaveOfDescription() {
+    public void saveOfDescription() {
+    	
     	/* Given */
-    	Iterable<Recipe> recipes = recipeRepository.findAll();
+    	Flux<Recipe> fluxRecipe = recipeReactiveRepository.findAll();
+    	Iterable<Recipe> recipes = fluxRecipe.toIterable();
     	Recipe testRecipe = recipes.iterator().next();
     	RecipeCommand testRecipeCommand = recipeToRecipeCommand.convert(testRecipe);
-    	
+
     	/* When */
     	testRecipeCommand.setDescription(NEW_DESCRIPTION);
     	Mono<RecipeCommand> monoRecipeCommand = recipeReactiveService.saveRecipeCommand(testRecipeCommand);

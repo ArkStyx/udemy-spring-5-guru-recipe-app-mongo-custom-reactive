@@ -13,6 +13,8 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import guru.springframework.recipe.app.domain.UnitOfMeasure;
+import guru.springframework.recipe.app.repositories.reactive.UnitOfMeasureReactiveRepository;
+import reactor.core.publisher.Mono;
 
 @Disabled("Classe de tests seulement utilisable avec JPA")
 @ExtendWith(SpringExtension.class)
@@ -20,7 +22,7 @@ import guru.springframework.recipe.app.domain.UnitOfMeasure;
 class UnitOfMeasureRepositoryIntegrationTest {
 
 	@Autowired
-	UnitOfMeasureRepository unitOfMeasureRepository;
+	UnitOfMeasureReactiveRepository unitOfMeasureReactiveRepository;
 	
 	@BeforeEach
 	void setUp() throws Exception {
@@ -29,8 +31,9 @@ class UnitOfMeasureRepositoryIntegrationTest {
 	@Test
 	void findByDescription() throws Exception {
 		String uniteDeMesureCherchee = "Teaspoon";
-		Optional<UnitOfMeasure> optionalTeaspoon = unitOfMeasureRepository.findByDescription(uniteDeMesureCherchee);
-		assertEquals(uniteDeMesureCherchee, optionalTeaspoon.get().getDescription());
+		Mono<UnitOfMeasure> teaspoonMono = unitOfMeasureReactiveRepository.findByDescription(uniteDeMesureCherchee);
+		Optional<UnitOfMeasure> teaspoonMonoOptional = teaspoonMono.blockOptional();
+		assertEquals(uniteDeMesureCherchee, teaspoonMonoOptional.get().getDescription());
 	}
 
 }
