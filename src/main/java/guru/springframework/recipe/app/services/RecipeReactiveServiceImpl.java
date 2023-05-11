@@ -1,7 +1,6 @@
 package guru.springframework.recipe.app.services;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import guru.springframework.recipe.app.commands.RecipeCommand;
 import guru.springframework.recipe.app.converters.fromcommand.RecipeCommandToRecipe;
@@ -33,7 +32,17 @@ public class RecipeReactiveServiceImpl implements RecipeReactiveService {
 	}
 
 	@Override
-	@Transactional
+	public Mono<RecipeCommand> findCommandById(String id) {
+		return recipeReactiveRepository.findById(id).map(recipe -> {
+			RecipeCommand recipeCommand = recipeToRecipeCommand.convert(recipe);
+			recipeCommand.getIngredients().forEach(ingredient -> {
+				ingredient.setRecipeId(recipeCommand.getId());
+			});
+			return recipeCommand;
+		});
+	}
+	
+	@Override
 	public Mono<RecipeCommand> saveRecipeCommand(RecipeCommand command) {
 		Recipe detachedRecipe = recipeCommandToRecipe.convert(command);
 		
@@ -41,13 +50,6 @@ public class RecipeReactiveServiceImpl implements RecipeReactiveService {
 		log.debug("savedRecipe.getId : " + savedRecipe.getId());
 		
 		return Mono.just(recipeToRecipeCommand.convert(savedRecipe));
-	}
-
-	@Override
-	public Mono<RecipeCommand> findCommandById(String id) {
-		Mono<Recipe> monoRecipe = findById(id);
-		RecipeCommand recipeCommand = recipeToRecipeCommand.convert(monoRecipe.block());
-		return Mono.just(recipeCommand);
 	}
 	
 	@Override

@@ -30,9 +30,9 @@ public class ImageController {
 	private final RecipeReactiveService recipeReactiveService;
 	
 	@GetMapping(value = "recipe/{id}/image")
-	public String getImageForm(Model model, @PathVariable String id) {
-		log.info("getImageForm - id recette recherchee : " + id);
-		model.addAttribute("recipe", recipeReactiveService.findCommandById(id));
+	public String showUploadForm(Model model, @PathVariable String id) {
+		log.info("showUploadForm - id recette recherchee : " + id);
+		model.addAttribute("recipe", recipeReactiveService.findCommandById(id).block());
 		return "recipe/imageuploadform";
 	}
 	
