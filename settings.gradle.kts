@@ -1,1 +1,1 @@
-rootProject.name = "recipe.app.mongo.custom.reactive"
+rootProject.name = "recipe.app.mongo.custom.reactive.webflux"
