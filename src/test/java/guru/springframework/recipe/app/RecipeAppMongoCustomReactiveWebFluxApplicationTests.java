@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @Disabled("Classe de tests seulement utilisable avec JPA")
 @SpringBootTest
-class RecipeAppMongoCustomReactiveApplicationTests {
+class RecipeAppMongoCustomReactiveWebFluxApplicationTests {
 
 	@Test
 	void contextLoads() {
