@@ -20,7 +20,7 @@ public class ImageReactiveServiceImpl implements ImageReactiveService {
 	
 	@Override
 	public Mono<Void> saveImageFile(String recipeId, MultipartFile file) {
-		log.info("Reception d'un fichier : " + file.getName());
+		log.info("Reception d'un fichier - originalFilename : " + file.getOriginalFilename());
 
 		Mono<Recipe> monoRecipe = recipeReactiveRepository.findById(recipeId).map(recipe -> {
 			try {
