@@ -30,7 +30,9 @@ public class IngredientReactiveServiceImpl implements IngredientReactiveService 
 	private final IngredientToIngredientCommand ingredientToIngredientCommand;
 	private final IngredientCommandToIngredient ingredientCommandToIngredient;
 	
-	// XXX correspondance nom methode JAVA GURU - John Thompson : findByRecipeIdAndIngredientId()
+	/*
+	 * correspondance nom methode JAVA GURU - John Thompson : findByRecipeIdAndIngredientId()
+	 */
 	@Override
 	public Mono<IngredientCommand> recupererParIdRecetteEtIdIngredient(String idRecette, String idIngredient) {
 		log.info("recupererParIdRecetteEtIdIngredient - idRecette : " + idRecette);
@@ -67,7 +69,9 @@ public class IngredientReactiveServiceImpl implements IngredientReactiveService 
                 });
 	}
 	
-	// XXX correspondance nom methode JAVA GURU - John Thompson : saveIngredientCommand()
+	/*
+	 * correspondance nom methode JAVA GURU - John Thompson : saveIngredientCommand()
+	 */
 	@Transactional
 	@Override
 	public Mono<IngredientCommand> sauvegarderIngredient(IngredientCommand ingredientCommand) {
@@ -133,7 +137,9 @@ public class IngredientReactiveServiceImpl implements IngredientReactiveService 
 		}
 	}
 
-	// XXX correspondance nom methode JAVA GURU - John Thompson : deleteById()
+	/*
+	 * correspondance nom methode JAVA GURU - John Thompson : deleteById()
+	 */
 	@Override
 	public Mono<Void> supprimerIngredientDansRecetteParId(String idRecette, String idIngredient) {
 
